@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyroFyro</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js'></script>
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
+
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css"
+        type="text/css" />
+
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <!-- <img src="./logo.png" alt="logo" width="400px"> -->
+            <h2 class="caption">FireFighters</h2>
+        </div>
+    </header>
+
+
+    <div class="project">
+        <div class="reports">
+            <a href="./report/index.html"> <b style="font-size: 32px;">Reports</b></a>
+            <p style="padding: 15px;">The collected data transmitted to authorities responsible for wildfire mitigation
+                to minimize damage</p>
+            <img src="undraw_location_review_d5qn.svg" width="120">
+        </div>
+        <div class="recentwildfires" ;>
+            <a href="./View/"><b style="font-size: 32px;">Recent wildfires</b></a>
+            <p style="padding: 15px;">Observe the most recent wildfires in your vicinity.</p>
+            <img src="undraw_spreadsheet_re_cn18.svg" width="120">
+        </div>
+        <div class="predicted" ;>
+            <a href="./vulnerability-map/index.html"><b style="font-size: 32px;">Vulnerability Map</b></a>
+            <p style="padding: 15px;">Visualized heatmap of predicted probability. The prediction is given by custom
+                model made and trained by the team.</p>
+            <img src="./undraw_map_dark_re_36sy.svg" width="120">
+        </div>
+    </div>
+    <hr id="bottom">
+    <!--criteria-->
+  
+    <hr id="bottom">
+    <!--criteria-->
+
+    <!--form-->
+    <
+
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js";
+        import { getFirestore, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0CMPROzVqlYqexvj5ALnIu45eCi9j6S4",
+            authDomain: "spaceapps-challenge-c258c.firebaseapp.com",
+            projectId: "spaceapps-challenge-c258c",
+            storageBucket: "spaceapps-challenge-c258c.appspot.com",
+            messagingSenderId: "527367587642",
+            appId: "1:527367587642:web:22c128d8825c96e5013203",
+            measurementId: "G-JZSWVF96MX"
+        };
+        // -------------
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaDNtcyIsImEiOiJjbGpwdmJ6bmQwMG5wM2V0azJwdXFmZ3B0In0.VcvGpQkVfDhgrBTlU9rs3A'; // public access token
+
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/satellite-streets-v12',
+            center: [85.3240, 27.7172], // Initial center coordinates
+            zoom: 7 // Initial zoom level
+        });
+        var geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            placeholder: 'Search for a location',
+        });
+
+        map.addControl(geocoder);
+
+        map.addControl(new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true
+        }));
+
+
+        var coordinates, uname, phone, address;
+        map.on('click', function (e) {
+            coordinates = e.lngLat;
+
+            var marker = new mapboxgl.Marker()
+                .setLngLat(coordinates)
+                .addTo(map);  // Add the marker to the map
+
+            document.getElementById('userDetailsCollector').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                console.log('Coordinates:', coordinates);
+                console.log('Address:', address);
+                console.log('Name:', uname);
+                console.log('Phone:', phone);
+                marker.remove();
+            });
+        });
+
+        // -------------
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore();
+
+        async function AddDocument_CustomID() {
+            const db = getFirestore();
+            const collectionRef = collection(db, "userdetails");
+
+            uname = document.getElementById('name').value;
+            phone = document.getElementById('phone').value;
+            address = document.getElementById('address').value;
+
+            const docRef = await addDoc(collectionRef, {
+                lat: coordinates.lat,
+                long: coordinates.lng,
+                address: address,
+                phone: phone,
+                uname: uname
+            });
+
+            alert("Data added successfully with ID: " + docRef.id);
+        }
+        var saveform = document.getElementById('saveform');
+        saveform.addEventListener("click", AddDocument_CustomID);
+
+
+        map.resize();
+
+    </script>
+</body>
+
+</html>
